@@ -3,6 +3,8 @@ package at.ac.fhcampuswien.newsanalyzer.ui;
 
 import at.ac.fhcampuswien.newsanalyzer.ctrl.Controller;
 import at.ac.fhcampuswien.newsanalyzer.ctrl.NewsAPIException;
+import at.ac.fhcampuswien.newsanalyzer.downloader.ParallelDownloader;
+import at.ac.fhcampuswien.newsanalyzer.downloader.SequentialDownloader;
 import at.ac.fhcampuswien.newsapi.NewsApi;
 import at.ac.fhcampuswien.newsapi.NewsApiBuilder;
 import at.ac.fhcampuswien.newsapi.enums.Country;
@@ -12,9 +14,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+
 public class UserInterface {
 
 	private Controller ctrl = new Controller();
+
 
 	public void getDataForCustomInput() {
 		System.out.println("Enter search query:");
@@ -47,9 +51,8 @@ public class UserInterface {
 		menu.insert("x", "Shortest author name", this::getShortestNameOfAuthors);	// Exercise 3
 		menu.insert("y", "Get article count", this::getArticleCount);	// Exercise 3
 		menu.insert("z", "Sort by longest title", this::getSortArticlesByLongestTitle); // Exercise 3
-		menu.insert("g", "Download URLs", () -> {
-			//Todo
-		});
+		//Todo
+		menu.insert("g", "Download last search" ,this::getDownloadLastSearch);
 		menu.insert("q", "Quit", null);
 		Runnable choice;
 		while ((choice = menu.exec()) != null) {
@@ -58,8 +61,7 @@ public class UserInterface {
 		System.out.println("Program finished");
 	}
 
-
-    protected String readLine() {
+	protected String readLine() {
 		String value = "\0";
 		BufferedReader inReader = new BufferedReader(new InputStreamReader(System.in));
 		try {
@@ -170,7 +172,7 @@ public class UserInterface {
 		try {
 			result = ctrl.process(newsApi);
 		} catch (NewsAPIException e) {
-			System.err.println("Error occured: " + e.getMessage());
+			System.err.println("Error occurred: " + e.getMessage());
 		} catch (Exception e){
 			System.out.println(e.getMessage());
 		}
@@ -195,12 +197,44 @@ public class UserInterface {
 		try {
 			result = ctrl.process(newsApi);
 		} catch (NewsAPIException e) {
-			System.err.println("Error occured: " + e.getMessage());
+			System.err.println("Error occurred: " + e.getMessage());
 		} catch (Exception e){
 			System.out.println(e.getMessage());
 		}
 
 		System.out.println(result);
 	}
+
+
+	/*public void getUrl() {
+		try {
+			List<String> result = ctrl.getUrl(urlList);
+			System.out.println("Most articles: " + result);
+		} catch (NewsAPIException e) {
+			System.out.println("Please load data first!");
+		} catch (Exception e){
+			System.out.println(e.getMessage());
+		}
+	}*/
+
+	private ParallelDownloader parallelDownload = new ParallelDownloader();
+	private SequentialDownloader sequentialDownload = new SequentialDownloader();
+
+
+	public void getDownloadLastSearch() {
+		try {
+			System.out.println("ParallelDownloader result: ");
+			ctrl.getDownloadLastSearch(parallelDownload);
+			System.out.println("SequentialDownloader result: ");
+			ctrl.getDownloadLastSearch(sequentialDownload);
+		} catch (NewsAPIException e) {
+			System.out.println("Please load data first!!");
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+
+
 
 }

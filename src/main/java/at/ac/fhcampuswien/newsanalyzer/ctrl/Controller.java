@@ -1,9 +1,12 @@
 package at.ac.fhcampuswien.newsanalyzer.ctrl;
 
+
+import at.ac.fhcampuswien.newsanalyzer.downloader.Downloader;
 import at.ac.fhcampuswien.newsapi.NewsApi;
 import at.ac.fhcampuswien.newsapi.beans.Article;
 import at.ac.fhcampuswien.newsapi.beans.NewsResponse;
 import at.ac.fhcampuswien.newsapi.beans.Source;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -11,77 +14,100 @@ import java.util.stream.Collectors;
 
 public class Controller {
 
-	public static final String APIKEY = "0038b5ccc1124e94b01d19b0d5982697";  //0038b5ccc1124e94b01d19b0d5982697
+    public static final String APIKEY = "64a3d2e6811d4505adf39b806396e5dd";  //0038b5ccc1124e94b01d19b0d5982697
 
-	private List<Article> articles = null;
+    private List<Article> articles = null;
 
-	public String process(NewsApi newsApi) throws NewsAPIException, IllegalArgumentException{
-		System.out.println("Start process");
+    public String process(NewsApi newsApi) throws NewsAPIException, IllegalArgumentException {
+        System.out.println("Start process");
 
-		if(newsApi == null)
-			throw new IllegalArgumentException();
+        if (newsApi == null)
+            throw new IllegalArgumentException();
 
-		articles = getArticles(newsApi);
+        articles = getArticles(newsApi);
+        System.out.println("Get URL list: " + getUrl(articles));
+        urlList = getUrl(articles);
 
-		System.out.println("End process");
 
-		return getArticlesPrintReady();
-	}
+        System.out.println("End process");
 
-	public List<Article> getArticles(NewsApi newsApi) throws NewsAPIException {
-		NewsResponse newsResponse = newsApi.getNews();
+        return getArticlesPrintReady();
+    }
 
-		if(!newsResponse.getStatus().equals("ok")){
-			throw new NewsAPIException("News Response returned status " + newsResponse.getStatus());
-		}
-		
-		return newsResponse.getArticles();
-	}
+    public List<Article> getArticles(NewsApi newsApi) throws NewsAPIException {
+        NewsResponse newsResponse = newsApi.getNews();
 
-	private String getArticlesPrintReady() {
-		return articles.stream()
-				.map(Article::print)
-				.collect(Collectors.joining("\n"));
-	}
+        if (!newsResponse.getStatus().equals("ok")) {
+            throw new NewsAPIException("News Response returned status " + newsResponse.getStatus());
+        }
 
-	public long getArticleCount() throws NewsAPIException {
-		if(articles == null)
-			throw new NewsAPIException("Load articles first");
-		return articles.size();
-	}
+        return newsResponse.getArticles();
+    }
 
-	public String getSortArticlesByLongestTitle() throws NewsAPIException {
-		if(articles == null)
-			throw new NewsAPIException("Load articles first");
-		return articles.stream()
-				.map(Article::getTitle)
-				.filter(Objects::nonNull)
-				.sorted(Comparator.comparing(String::length).reversed())
-				.collect(Collectors.joining("\n"));
-	}
+    private String getArticlesPrintReady() {
+        return articles.stream()
+                .map(Article::print)
+                .collect(Collectors.joining("\n"));
+    }
 
-	public String getShortestNameOfAuthors() throws NewsAPIException {
-		if(articles == null)
-			throw new NewsAPIException("Load data first");
+    public long getArticleCount() throws NewsAPIException {
+        if (articles == null)
+            throw new NewsAPIException("Load articles first");
+        return articles.size();
+    }
 
-		return articles.stream()
-				.map(Article::getAuthor)
-				.filter(Objects::nonNull)
-				.min(Comparator.comparing(String::length))
-				.orElseThrow();
-	}
+    public String getSortArticlesByLongestTitle() throws NewsAPIException {
+        if (articles == null)
+            throw new NewsAPIException("Load articles first");
+        return articles.stream()
+                .map(Article::getTitle)
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(String::length).reversed())
+                .collect(Collectors.joining("\n"));
+    }
 
-	public String getProviderWithMostArticles() throws NewsAPIException {
-		if(articles == null)
-			throw new NewsAPIException("Load data first");
+    public String getShortestNameOfAuthors() throws NewsAPIException {
+        if (articles == null)
+            throw new NewsAPIException("Load data first");
 
-		return articles.stream()
-				.map(Article::getSource)
-				.collect(Collectors.groupingBy(Source::getName))
-				.entrySet()
-				.stream()
-				.max(Comparator.comparingInt(o -> o.getValue().size()))
-				.map(stringListEntry -> stringListEntry.getKey() + " " + stringListEntry.getValue().size())
-				.orElseThrow();
-	}
+        return articles.stream()
+                .map(Article::getAuthor)
+                .filter(Objects::nonNull)
+                .min(Comparator.comparing(String::length))
+                .orElseThrow();
+    }
+
+    public String getProviderWithMostArticles() throws NewsAPIException {
+        if (articles == null)
+            throw new NewsAPIException("Load data first");
+
+        return articles.stream()
+                .map(Article::getSource)
+                .collect(Collectors.groupingBy(Source::getName))
+                .entrySet()
+                .stream()
+                .max(Comparator.comparingInt(o -> o.getValue().size()))
+                .map(stringListEntry -> stringListEntry.getKey() + " " + stringListEntry.getValue().size())
+                .orElseThrow();
+    }
+
+
+    //method to collect all URls in a list
+    public List urlList;
+    public List<String> getUrl(List<Article> urlList) throws NewsAPIException {
+        if (articles == null)
+            throw new NewsAPIException("Load data first");
+
+        return urlList.stream().
+                map(article -> article.getUrl()).
+                collect(Collectors.toList());
+    }
+
+
+    public void getDownloadLastSearch(Downloader downloader) throws NewsAPIException {
+        System.out.println("Download last search: ");
+        downloader.process(urlList);
+
+    }
+
 }

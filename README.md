@@ -1,3 +1,7 @@
+https://github.com/lights9/prog2Exercise4
+Worked with: Zeynep Avci & Greta Berdynaj
+
+
 # NewsreaderStarterExercise4
 
 ## Important!

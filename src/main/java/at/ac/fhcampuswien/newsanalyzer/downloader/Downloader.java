@@ -8,9 +8,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class Downloader {
+public abstract class Downloader  {
 
-    public static final String HTML_EXTENTION = ".html";
+    public static final String HTML_EXTENSION = ".html";
     public static final String DIRECTORY_DOWNLOAD = "./download/";
 
     public abstract int process(List<String> urls);
@@ -25,7 +25,7 @@ public abstract class Downloader {
 
             fileName = urlString.substring(urlString.lastIndexOf('/') + 1);
             if (fileName.isEmpty()) {
-                fileName = url4download.getHost() + HTML_EXTENTION;
+                fileName = url4download.getHost() + HTML_EXTENSION;
             }
             os = new FileOutputStream(DIRECTORY_DOWNLOAD + fileName);
 
